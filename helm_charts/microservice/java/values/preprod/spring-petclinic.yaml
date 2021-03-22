@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: 
-  tag: 
+  repository: anumrati/spring-petclinic
+  tag: spring-petclinic_preprod_5_2021-03-22_21.55.292021-03-22_21.55.29_temp
 
 microservice:
   name: spring-petclinic
