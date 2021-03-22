@@ -1,0 +1,10 @@
+replicaCount:
+
+image:
+  repository:
+  tag:
+
+microservice:
+  name:
+
+temp: true

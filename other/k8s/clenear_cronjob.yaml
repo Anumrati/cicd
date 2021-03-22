@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cleaner
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: temp
+  name: cleaner
+rules:
+  - apiGroups: ["apps", "", "extensions"]
+    resources: ["apps","pods","rs","deploy","svc","cm","ing","deployments","services","configmaps","replicasets","ingresses"]
+    verbs: ["list","delete"]
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cleaner
+  namespace: temp
+subjects:
+  - kind: ServiceAccount
+    name: cleaner
+roleRef:
+  kind: Role
+  name: cleaner
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cleaner
+spec:
+  successfulJobsHistoryLimit: 4
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: cleaner
+          containers:
+            - name: cleaner
+              image: bitnami/kubectl
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -c
+                - kubectl get Deployment -n temp -o go-template --template '{{range .items}}{{.metadata.name}} {{.metadata.creationTimestamp}}{{"\n"}}{{end}}' | awk '$2 <= "'$(date -d'now-10 minutes' -Ins --utc | sed 's/+0000/Z/')'" { print $1 }' | xargs -I {} --no-run-if-empty kubectl delete pods,rs,deploy,svc,cm,ing -n temp -l app={}
+          restartPolicy: Never
+      backoffLimit: 0

@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: 'mysql-test'
+spec:
+  destination:
+      server: 'https://kubernetes.default.svc'
+      namespace: test
+  source:
+      repoURL: 'git@github.com:Anumrati/cicd.git'
+      path: helm_charts/mysql
+      targetRevision: HEAD
+      helm:
+        valueFiles:
+          - values.yaml
+  project: 'default'
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false    

@@ -1,0 +1,65 @@
+{{ if .Values.image.repository }} 
+{{ if .Values.image.tag }}   
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.microservice.name | lower | replace "." "-"  | replace "_" "-" }}
+  labels:
+    app: {{ .Values.microservice.name | lower | replace "." "-"  | replace "_" "-" }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ .Values.microservice.name | lower | replace "." "-"  | replace "_" "-" }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.microservice.name | lower | replace "." "-"  | replace "_" "-" }}
+    spec:
+      containers:
+        - name: {{ .Values.microservice.name | lower | replace "." "-"  | replace "_" "-" }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- if not .Values.temp }}  
+            - name: JAVA_OPTS
+              value: "-Xmx512M -Xms256M -Dspring.profiles.active=mysql -Dspring.datasource.url=${MYSQL_URL:jdbc:mysql://mysql-${NAMESPACE}.${NAMESPACE}.svc/petclinic}"
+            {{ else }}
+            - name: JAVA_OPTS
+              value: "-Xmx512M -Xms256M"
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 180
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 1
+          resources:
+            requests:
+              memory: "400Mi"
+              cpu: "100m"
+            limits:
+              memory: "900Mi"
+              cpu: "1"
+{{ end }}
+{{ end }}

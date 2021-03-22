@@ -1,0 +1,15 @@
+{{- if eq .Release.Namespace "prd"}}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.microservice.name | lower | replace "." "-"  | replace "_" "-" }}-hpa
+spec:
+  maxReplicas: {{ mul .Values.replicaCount 3 }}
+  minReplicas: {{ .Values.replicaCount }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.microservice.name | lower | replace "." "-"  | replace "_" "-" }}
+  targetCPUUtilizationPercentage: 50
+{{- end }}
+

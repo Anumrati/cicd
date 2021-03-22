@@ -1,0 +1,11 @@
+{{- if eq .Release.Namespace "prd"}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.microservice.name | lower | replace "." "-"  | replace "_" "-" }}-pdb
+spec:
+  minAvailable: 90%
+  selector:
+    matchLabels:
+      app: {{ .Values.microservice.name | lower | replace "." "-"  | replace "_" "-" }}
+{{- end }}

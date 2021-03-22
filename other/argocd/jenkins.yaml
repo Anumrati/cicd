@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: 'jenkins'
+spec:
+  destination:
+      server: 'https://kubernetes.default.svc'
+      namespace: jenkins
+  source:
+      repoURL: 'git@github.com:Anumrati/cicd.git'
+      path: helm_charts/jenkins
+      targetRevision: HEAD
+      helm:
+        valueFiles:
+          - values.yaml
+  project: 'default'
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
