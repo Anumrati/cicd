@@ -207,6 +207,7 @@ controller:
     - greenballs:1.15.1
     - build-timestamp:1.0.3
     - promoted-builds:3.9
+    - parameterized-trigger:2.40
 
   # List of plugins to install in addition to those listed in controller.installPlugins
   additionalPlugins: [ ]
