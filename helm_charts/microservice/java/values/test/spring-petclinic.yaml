@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: anumrati/spring-petclinic
-  tag: spring-petclinic_test_1_2021-03-22_22.16.092021-03-22_22.16.09_temp
+  tag: spring-petclinic_test_1_2021-04-19_17.45.112021-04-19_17.45.11_temp
 
 microservice:
   name: spring-petclinic
